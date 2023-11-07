@@ -1,0 +1,7 @@
+services:
+  db:
+    image: mysql:8.0.35-debian
+    env_file:
+      - ./.env
+    ports:
+      - 3306:3306

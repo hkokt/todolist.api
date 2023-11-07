@@ -1,3 +1,4 @@
 import App from "./server/app";
-
-new App().server.listen(8080)
+const port = 8080;
+new App().server.listen(port);
+console.log(`server rodando na porta:${port}`);
