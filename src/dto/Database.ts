@@ -1,22 +1,28 @@
-import mysql, { ConnectionOptions } from 'mysql2/promise';
+import mysql, { Pool, ConnectionOptions, RowDataPacket } from 'mysql2/promise';
 import "dotenv/config";
 
 const config: ConnectionOptions = {
     host: process.env.MYSQL_HOST,
     database: process.env.MYSQL_DATABASE,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD
+    user: 'root',
+    password: '2345678'
 }
 
-async function query(command: string) {
-    const connection = await mysql.createConnection(config);
+const pool: Pool = mysql.createPool(config);
+
+async function query(command: string, params?: any): Promise<RowDataPacket[] | Error> {
+    let connection;
     try {
-        const [rows] = await connection.query(command);
-        return rows;
+        connection = await pool.getConnection();
+        const [rows] = params ? await connection.query(command, params) : await connection.query(command);
+        return rows as RowDataPacket[];
+        //'SELECT * FROM sua_tabela WHERE coluna = :valor', { valor: 'algum_valor' }
     } catch (error) {
         throw error;
     } finally {
-        await connection.end();
+        if (connection) {
+            connection.release();
+        }
     }
 }
 
