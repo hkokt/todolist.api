@@ -4,7 +4,6 @@ import * as jwt from 'jsonwebtoken';
 import Database from '../dto/Database';
 import "dotenv/config"
 
-
 interface User {
     id_user: number;
     username: string;
@@ -22,7 +21,7 @@ async function postSignup(req: Request, res: Response): Promise<void> {
         res.status(201).json(createdUser);
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
         res.status(500).json({ error: 'Erro ao criar usuário.' });
     }
 }
@@ -50,19 +49,19 @@ async function postSignin(req: Request, res: Response): Promise<void> {
             res.status(401).json({ error: 'Credenciais inválidas.' });
         }
     } catch (error) {
-        console.error(error);
+        console.log(error);
         res.status(500).json({ error: 'Erro ao fazer login.' });
     }
 }
 
 async function verifyToken(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const token = req.header('Authorization').replace("Bearer ", "");
-
-    if (!token) {
-        res.status(401).json({ error: 'Token não fornecido' });
-    }
-
     try {
+        const token = req.header('Authorization').replace("Bearer ", "");
+
+        if (!token) {
+            res.status(401).json({ error: 'Token não fornecido' });
+        }
+
         const decoded = jwt.verify(token, process.env.SECRET_JWT) as { username: string };
         const username = decoded.username;
         const user = await getUserByUsername(username);
@@ -74,8 +73,7 @@ async function verifyToken(req: Request, res: Response, next: NextFunction): Pro
         req["user"] = user;
         next();
     } catch (error) {
-        console.error(error);
-
+        console.log(error);
         if (error instanceof jwt.JsonWebTokenError) {
             res.status(401).json({ error: 'Token inválido' });
         }
@@ -83,14 +81,17 @@ async function verifyToken(req: Request, res: Response, next: NextFunction): Pro
         if (error instanceof jwt.TokenExpiredError) {
             res.status(401).json({ error: 'Token expirado' });
         }
-
         res.status(403).json({ error: 'Falha na autenticação do token' });
     }
 }
 
 async function getUserByUsername(username: string): Promise<User | null> {
-    const queryUser: any = await Database.query('call get_user_by_name(?);', [username]);
-    return queryUser[0][0] || null;
+    try {
+        const queryUser: any = await Database.query('call get_user_by_name(?);', [username]);
+        return queryUser[0][0] || null;
+    } catch (err) {
+        throw err;
+    }
 }
 
 export default {

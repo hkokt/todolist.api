@@ -28,11 +28,11 @@ async function status(req: Request, res: Response): Promise<void> {
 }
 
 async function get(req: Request, res: Response): Promise<void> {
-    const titulo = req.query.titulo ? req.query.titulo : undefined;
-    const token_jwt = req.header('Authorization').replace("Bearer ", "");
-    const userId = await getIdUserFromToken(token_jwt);
-
     try {
+        const titulo = req.query.titulo ? req.query.titulo : undefined;
+        const token_jwt = req.header('Authorization').replace("Bearer ", "");
+        const userId = await getIdUserFromToken(token_jwt);
+
         if (titulo === undefined) {
             const rs = await Database.query(`call get_tarefa_by_user_id(?);`, [userId]);
             res.send(rs[0]);
@@ -46,11 +46,11 @@ async function get(req: Request, res: Response): Promise<void> {
 }
 
 async function post(req: Request, res: Response): Promise<void> {
-    const body = req.body;
-    const token_jwt = req.header('Authorization').replace("Bearer ", "");
-    const userId = await getIdUserFromToken(token_jwt);
-
     try {
+        const body = req.body;
+        const token_jwt = req.header('Authorization').replace("Bearer ", "");
+        const userId = await getIdUserFromToken(token_jwt);
+
         await Database.query(`call post_tarefa(?,?,?);`, [userId, body.titulo, body.descricao]);
 
         body["post_success"] = true;
@@ -62,11 +62,11 @@ async function post(req: Request, res: Response): Promise<void> {
 }
 
 async function put(req: Request, res: Response): Promise<void> {
-    const body = req.body;
-    const token_jwt = req.header('Authorization').replace("Bearer ", "");
-    const userId = await getIdUserFromToken(token_jwt);
-
     try {
+        const body = req.body;
+        const token_jwt = req.header('Authorization').replace("Bearer ", "");
+        const userId = await getIdUserFromToken(token_jwt);
+
         await Database.query(`call put_tarefa(?,?,?,?);`, [userId, body.id_tarefa, body.titulo, body.descricao]);
         body["update_success"] = true;
         res.send(body);
@@ -76,12 +76,13 @@ async function put(req: Request, res: Response): Promise<void> {
 }
 
 async function del(req: Request, res: Response): Promise<void> {
-    const body = req.body;
-    const token_jwt = req.header('Authorization').replace("Bearer ", "");
-    const userId = await getIdUserFromToken(token_jwt);
-
     try {
+        const body = req.body;
+        const token_jwt = req.header('Authorization').replace("Bearer ", "");
+        const userId = await getIdUserFromToken(token_jwt);
+
         await Database.query(`call delete_tarefa(?,?);`, [body.id_tarefa, userId]);
+
         body["delete_success"] = true;
         res.send(body);
     } catch (err) {
